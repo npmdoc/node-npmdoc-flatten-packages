@@ -61,12 +61,452 @@
 
     <li class="apidocModuleLi"><a href="#apidoc.module.flatten-packages">module flatten-packages</a><ol>
 
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.flatten-packages.flatten-packages">
+            function <span class="apidocSignatureSpan"></span>flatten-packages
+            <span class="apidocSignatureSpan">(dir, options, callback)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.flatten-packages.flatten">
+            function <span class="apidocSignatureSpan">flatten-packages.</span>flatten
+            <span class="apidocSignatureSpan">(dir, options, callback)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.flatten-packages.print">
+            function <span class="apidocSignatureSpan">flatten-packages.</span>print
+            <span class="apidocSignatureSpan">(dir, callback)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.flatten-packages.toString">
+            function <span class="apidocSignatureSpan">flatten-packages.</span>toString
+            <span class="apidocSignatureSpan">()</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.flatten-packages.print">module flatten-packages.print</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.flatten-packages.print.print">
+            function <span class="apidocSignatureSpan">flatten-packages.</span>print
+            <span class="apidocSignatureSpan">(dir, callback)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.flatten-packages.toString">module flatten-packages.toString</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.flatten-packages.toString.toString">
+            function <span class="apidocSignatureSpan">flatten-packages.</span>toString
+            <span class="apidocSignatureSpan">()</span>
+            </a>
+
+        </li>
+
     </ol></li>
 
 </ol></div>
 
 <div class="apidocSectionDiv">
 <h1><a href="#apidoc.module.flatten-packages" id="apidoc.module.flatten-packages">module flatten-packages</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.flatten-packages.flatten-packages" id="apidoc.element.flatten-packages.flatten-packages">
+        function <span class="apidocSignatureSpan"></span>flatten-packages
+        <span class="apidocSignatureSpan">(dir, options, callback)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">flatten-packages = function (dir, options, callback) {
+
+  options.verbose = true;
+
+  var resolvedDir = path.resolve(dir);
+
+  if (options.verbose) {
+    console.log(&#x27;processing directory &#x27; + resolvedDir.green);
+  }
+
+  if (fs.existsSync(resolvedDir)) {
+
+    // find modules
+    walkModules(resolvedDir, function(err, modules) {
+      if (err) return callback(err);
+      else {
+
+        if (options.verbose) {
+          console.log(&#x27;there are&#x27;, colors.cyan(modules.length), &#x27;total packages&#x27;);
+        }
+
+        var seenData = [];
+        var duplicateData = [];
+        var moduleCount = {};
+
+        // for each package
+        for (var i = 0; i &#x3c; modules.length; i++) {
+
+          // get package information
+          var currentData = {};
+          currentData.dir = path.dirname(modules[i]);
+          currentData.dirname = path.basename(currentData.dir);
+
+          var occurence = countOccurence(currentData.dir.split(path.sep));
+          currentData.nodeModulesCount = occurence.node_modules;
+          moduleCount[currentData.nodeModulesCount] = (moduleCount[currentData.nodeModulesCount] || 0) + 1
+
+          try {
+            var packageJson = require(modules[i]);
+            currentData.name = packageJson.name || currentData.dirname;
+            currentData.version = packageJson.version || &#x27;0.0.0&#x27;;
+            if(typeof(currentData.name) === &#x27;undefined&#x27;)
+              continue;
+              //throw &#x27;Name is not specified in &#x27; + modules[i];
+            if(typeof(currentData.version) === &#x27;undefined&#x27;)
+              continue;
+              //throw &#x27;Version is not specified in &#x27; + modules[i];
+          }
+          catch(err) {
+            return callback(err);
+          }
+
+          console.log(&#x27;processing &#x27; + currentData.name + &#x27; ver. &#x27; + currentData.version + &#x27; in &#x27; + currentData.dir);
+
+          // start acculumate seen and duplicate
+          if (seenData.length == 0) {
+            seenData.push(currentData);
+          }
+          else {
+
+            var currentExist = false;
+            var currentExistIndex = -1;
+            var currentExistData = {};
+            for (var j = 0; j &#x3c; seenData.length; j++) {
+
+              if (seenData[j].name === currentData.name) {
+                currentExist = true;
+                currentExistIndex = j;
+                currentExistData = seenData[j];
+                break;
+              }
+            }
+
+            if (!currentExist) {
+              seenData.push(currentData);
+            }
+            else {
+              if (options.verbose) {
+                console.log(&#x27; duplicate:&#x27;.magenta, currentData.name, currentData.version.cyan, &#x27;existing version:&#x27;, currentExistData
+.version.cyan);
+              }
+
+              // if seen version is older, swap seen with most current version
+              if (semver.lt(currentExistData.version,currentData.version)) {
+                if (options.verbose) {
+                  console.log(&#x27;  &#x27;, currentData.name, &#x27;existing version is older. do swap&#x27;);
+                }
+                seenData[currentExistIndex] = currentData;
+                duplicateData.push(currentExistData);
+              }
+              else {
+                duplicateData.push(currentData);
+              }
+            }
+          }
+        }
+
+        if (options.verbose) {
+          console.log(&#x27;node_modules iteration complete&#x27;.green);
+          console.log(&#x27;there are&#x27;, colors.cyan(seenData.length), &#x27;unique packages&#x27;);
+          console.log(&#x27;         &#x27;, colors.cyan(duplicateData.length), &#x27;duplicate packages&#x27;);
+          for (var key in moduleCount) {
+            var str = key == 1 ? &#x27;there are&#x27; : &#x27;         &#x27;;
+            console.log(str, colors.cyan(moduleCount[key]), &#x27;packages in node_modules level&#x27;, colors.cyan(key));
+          }
+        }
+
+        if (options.info) {
+          callback(null, &#x27;node_modules info complete&#x27;.green);
+        }
+        else {
+
+          try {
+
+            // move seen packages if its in deeper level to first level
+            for ( ...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.flatten-packages.flatten" id="apidoc.element.flatten-packages.flatten">
+        function <span class="apidocSignatureSpan">flatten-packages.</span>flatten
+        <span class="apidocSignatureSpan">(dir, options, callback)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">flatten = function (dir, options, callback) {
+
+  options.verbose = true;
+
+  var resolvedDir = path.resolve(dir);
+
+  if (options.verbose) {
+    console.log(&#x27;processing directory &#x27; + resolvedDir.green);
+  }
+
+  if (fs.existsSync(resolvedDir)) {
+
+    // find modules
+    walkModules(resolvedDir, function(err, modules) {
+      if (err) return callback(err);
+      else {
+
+        if (options.verbose) {
+          console.log(&#x27;there are&#x27;, colors.cyan(modules.length), &#x27;total packages&#x27;);
+        }
+
+        var seenData = [];
+        var duplicateData = [];
+        var moduleCount = {};
+
+        // for each package
+        for (var i = 0; i &#x3c; modules.length; i++) {
+
+          // get package information
+          var currentData = {};
+          currentData.dir = path.dirname(modules[i]);
+          currentData.dirname = path.basename(currentData.dir);
+
+          var occurence = countOccurence(currentData.dir.split(path.sep));
+          currentData.nodeModulesCount = occurence.node_modules;
+          moduleCount[currentData.nodeModulesCount] = (moduleCount[currentData.nodeModulesCount] || 0) + 1
+
+          try {
+            var packageJson = require(modules[i]);
+            currentData.name = packageJson.name || currentData.dirname;
+            currentData.version = packageJson.version || &#x27;0.0.0&#x27;;
+            if(typeof(currentData.name) === &#x27;undefined&#x27;)
+              continue;
+              //throw &#x27;Name is not specified in &#x27; + modules[i];
+            if(typeof(currentData.version) === &#x27;undefined&#x27;)
+              continue;
+              //throw &#x27;Version is not specified in &#x27; + modules[i];
+          }
+          catch(err) {
+            return callback(err);
+          }
+
+          console.log(&#x27;processing &#x27; + currentData.name + &#x27; ver. &#x27; + currentData.version + &#x27; in &#x27; + currentData.dir);
+
+          // start acculumate seen and duplicate
+          if (seenData.length == 0) {
+            seenData.push(currentData);
+          }
+          else {
+
+            var currentExist = false;
+            var currentExistIndex = -1;
+            var currentExistData = {};
+            for (var j = 0; j &#x3c; seenData.length; j++) {
+
+              if (seenData[j].name === currentData.name) {
+                currentExist = true;
+                currentExistIndex = j;
+                currentExistData = seenData[j];
+                break;
+              }
+            }
+
+            if (!currentExist) {
+              seenData.push(currentData);
+            }
+            else {
+              if (options.verbose) {
+                console.log(&#x27; duplicate:&#x27;.magenta, currentData.name, currentData.version.cyan, &#x27;existing version:&#x27;, currentExistData
+.version.cyan);
+              }
+
+              // if seen version is older, swap seen with most current version
+              if (semver.lt(currentExistData.version,currentData.version)) {
+                if (options.verbose) {
+                  console.log(&#x27;  &#x27;, currentData.name, &#x27;existing version is older. do swap&#x27;);
+                }
+                seenData[currentExistIndex] = currentData;
+                duplicateData.push(currentExistData);
+              }
+              else {
+                duplicateData.push(currentData);
+              }
+            }
+          }
+        }
+
+        if (options.verbose) {
+          console.log(&#x27;node_modules iteration complete&#x27;.green);
+          console.log(&#x27;there are&#x27;, colors.cyan(seenData.length), &#x27;unique packages&#x27;);
+          console.log(&#x27;         &#x27;, colors.cyan(duplicateData.length), &#x27;duplicate packages&#x27;);
+          for (var key in moduleCount) {
+            var str = key == 1 ? &#x27;there are&#x27; : &#x27;         &#x27;;
+            console.log(str, colors.cyan(moduleCount[key]), &#x27;packages in node_modules level&#x27;, colors.cyan(key));
+          }
+        }
+
+        if (options.info) {
+          callback(null, &#x27;node_modules info complete&#x27;.green);
+        }
+        else {
+
+          try {
+
+            // move seen packages if its in deeper level to first level
+            for ( ...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.flatten-packages.print" id="apidoc.element.flatten-packages.print">
+        function <span class="apidocSignatureSpan">flatten-packages.</span>print
+        <span class="apidocSignatureSpan">(dir, callback)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">print = function (dir, callback) {
+
+  var resolvedDir = path.resolve(dir);
+
+  var nodeModulesDir = path.join(resolvedDir, &#x27;node_modules&#x27;);
+  console.log(nodeModulesDir);
+  fs.readdir(nodeModulesDir, function(err, list) {
+    if (err) {
+      callback(err);
+    }
+    else {
+
+      var dependencies = {};
+      list.forEach(function(file) {
+        file = path.join(resolvedDir, &#x27;node_modules&#x27;, file, &#x27;package.json&#x27;);
+        if (fs.existsSync(file)) {
+          var packageJson = require(file);
+          dependencies[packageJson.name] = packageJson.version;
+        }
+      })
+
+      var d = {
+        dependencies : dependencies
+      }
+      console.log(JSON.stringify(d, null, 2));
+
+      callback(null, &#x27;print node_modules complete&#x27;.green);
+    }
+  })
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.flatten-packages.toString" id="apidoc.element.flatten-packages.toString">
+        function <span class="apidocSignatureSpan">flatten-packages.</span>toString
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">toString = function () {
+    return text;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.flatten-packages.print" id="apidoc.module.flatten-packages.print">module flatten-packages.print</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.flatten-packages.print.print" id="apidoc.element.flatten-packages.print.print">
+        function <span class="apidocSignatureSpan">flatten-packages.</span>print
+        <span class="apidocSignatureSpan">(dir, callback)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">print = function (dir, callback) {
+
+  var resolvedDir = path.resolve(dir);
+
+  var nodeModulesDir = path.join(resolvedDir, &#x27;node_modules&#x27;);
+  console.log(nodeModulesDir);
+  fs.readdir(nodeModulesDir, function(err, list) {
+    if (err) {
+      callback(err);
+    }
+    else {
+
+      var dependencies = {};
+      list.forEach(function(file) {
+        file = path.join(resolvedDir, &#x27;node_modules&#x27;, file, &#x27;package.json&#x27;);
+        if (fs.existsSync(file)) {
+          var packageJson = require(file);
+          dependencies[packageJson.name] = packageJson.version;
+        }
+      })
+
+      var d = {
+        dependencies : dependencies
+      }
+      console.log(JSON.stringify(d, null, 2));
+
+      callback(null, &#x27;print node_modules complete&#x27;.green);
+    }
+  })
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.flatten-packages.toString" id="apidoc.module.flatten-packages.toString">module flatten-packages.toString</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.flatten-packages.toString.toString" id="apidoc.element.flatten-packages.toString.toString">
+        function <span class="apidocSignatureSpan">flatten-packages.</span>toString
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function toString() { [native code] }</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
 
 </div>
 
