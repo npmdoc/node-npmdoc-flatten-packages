@@ -1,9 +1,14 @@
-# api documentation for  [flatten-packages (v0.1.4)](https://github.com/arifsetiawan/flatten)  [![npm package](https://img.shields.io/npm/v/npmdoc-flatten-packages.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-flatten-packages) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-flatten-packages.svg)](https://travis-ci.org/npmdoc/node-npmdoc-flatten-packages)
+# npmdoc-flatten-packages
+
+#### api documentation for  [flatten-packages (v0.1.4)](https://github.com/arifsetiawan/flatten)  [![npm package](https://img.shields.io/npm/v/npmdoc-flatten-packages.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-flatten-packages) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-flatten-packages.svg)](https://travis-ci.org/npmdoc/node-npmdoc-flatten-packages)
+
 #### flat packages in node_modules
 
-[![NPM](https://nodei.co/npm/flatten-packages.png?downloads=true)](https://www.npmjs.com/package/flatten-packages)
+[![NPM](https://nodei.co/npm/flatten-packages.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/flatten-packages)
 
-[![apidoc](https://npmdoc.github.io/node-npmdoc-flatten-packages/build/screenCapture.buildNpmdoc.browser._2Fhome_2Ftravis_2Fbuild_2Fnpmdoc_2Fnode-npmdoc-flatten-packages_2Ftmp_2Fbuild_2Fapidoc.html.png)](https://npmdoc.github.io/node-npmdoc-flatten-packages/build/apidoc.html)
+- [https://npmdoc.github.io/node-npmdoc-flatten-packages/build/apidoc.html](https://npmdoc.github.io/node-npmdoc-flatten-packages/build/apidoc.html)
+
+[![apidoc](https://npmdoc.github.io/node-npmdoc-flatten-packages/build/screenCapture.buildCi.browser.%252Ftmp%252Fbuild%252Fapidoc.html.png)](https://npmdoc.github.io/node-npmdoc-flatten-packages/build/apidoc.html)
 
 ![npmPackageListing](https://npmdoc.github.io/node-npmdoc-flatten-packages/build/screenCapture.npmPackageListing.svg)
 
@@ -17,8 +22,7 @@
 
 {
     "author": {
-        "name": "Nurul Arif Setiawan",
-        "email": "n.arif.setiawan@gmail.com"
+        "name": "Nurul Arif Setiawan"
     },
     "bin": {
         "flatten-packages": "./bin/flatten"
@@ -53,13 +57,11 @@
     "main": "index.js",
     "maintainers": [
         {
-            "name": "arifsetiawan",
-            "email": "n.arif.setiawan@gmail.com"
+            "name": "arifsetiawan"
         }
     ],
     "name": "flatten-packages",
     "optionalDependencies": {},
-    "readme": "ERROR: No README data found!",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/arifsetiawan/flatten.git"
@@ -70,16 +72,6 @@
     "version": "0.1.4"
 }
 ```
-
-
-
-# <a name="apidoc.tableOfContents"></a>[table of contents](#apidoc.tableOfContents)
-
-#### [module flatten-packages](#apidoc.module.flatten-packages)
-
-
-
-# <a name="apidoc.module.flatten-packages"></a>[module flatten-packages](#apidoc.module.flatten-packages)
 
 
 
