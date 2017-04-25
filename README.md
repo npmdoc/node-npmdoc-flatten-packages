@@ -1,6 +1,6 @@
 # npmdoc-flatten-packages
 
-#### api documentation for  [flatten-packages (v0.1.4)](https://github.com/arifsetiawan/flatten)  [![npm package](https://img.shields.io/npm/v/npmdoc-flatten-packages.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-flatten-packages) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-flatten-packages.svg)](https://travis-ci.org/npmdoc/node-npmdoc-flatten-packages)
+#### basic api documentation for  [flatten-packages (v0.1.4)](https://github.com/arifsetiawan/flatten)  [![npm package](https://img.shields.io/npm/v/npmdoc-flatten-packages.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-flatten-packages) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-flatten-packages.svg)](https://travis-ci.org/npmdoc/node-npmdoc-flatten-packages)
 
 #### flat packages in node_modules
 
